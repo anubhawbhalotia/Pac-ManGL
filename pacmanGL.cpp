@@ -1,6 +1,8 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<bits/stdc++.h>
+#include<unistd.h> 
+
 using namespace std;
 #define HEIGHT 288
 #define WIDTH 512
@@ -8,7 +10,7 @@ using namespace std;
 float frameRate=88;
 float currTime;
 float pacmanSpeed=(int)(0.8*frameRate);
-int i,j;
+int i,j,nextState;
 float x,y;
 int pacmanCentre[2],blinkyCentre[2],pinkyCentre[2],inkyCentre[2],clinkyCentre[2];
 int board[][28]={
@@ -64,7 +66,9 @@ void framebuffer_size_callback(GLFWwindow* window,int width,int height)
 }
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if(key==GLFW_KEY_UP&& action==GLFW_PRESS)
+	if(state.empty())
+	{
+		if(key==GLFW_KEY_UP&& action==GLFW_PRESS)
 	{
 		state.push(0);
 	}
@@ -80,6 +84,28 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		state.push(3);
 	}
+	}
+	else
+	{
+	
+	if(key==GLFW_KEY_UP&& action==GLFW_PRESS && state.back()!=0)
+	{
+		state.push(0);
+	}
+	else if(key==GLFW_KEY_LEFT&& action==GLFW_PRESS && state.back()!=1)
+	{
+		state.push(1);
+	}
+	else if(key==GLFW_KEY_DOWN&& action==GLFW_PRESS && state.back()!=2)
+	{
+		state.push(2);
+	}
+	else if(key==GLFW_KEY_RIGHT&& action==GLFW_PRESS && state.back()!=3)
+	{
+		state.push(3);
+	}
+	}
+	cout<<state.back()<<endl;
 
 }
 void attachPacman()
@@ -177,7 +203,7 @@ void attachPacmanRight()
 }
 void attachPacmanLeft()
 {
-	//cout<<pacmanCentre[0]<<" "<<pacmanCentre[1]<<endl;
+	cout<<"l"<<pacmanCentre[0]<<" "<<pacmanCentre[1]<<endl;
 	float vertices[]={
 		
 		-1+(x*(pacmanCentre[0]-2)),(1-(y*(pacmanCentre[1]-5))),0.0,
@@ -1310,18 +1336,82 @@ void attachWall()
 void movePacman()
 {
 	pacmanShape=!pacmanShape;
-	currPacLoc[0]=((pacmanCentre[0])/8)-18;
+	currPacLoc[0]=(((pacmanCentre[0]))/8)-18;
 	currPacLoc[1]=(pacmanCentre[1])/8;
 	cout<<currPacLoc[0]<<" "<<currPacLoc[1]<<endl;;
-	if(state.empty())
+	if(!state.empty())
 	{
+		nextState=state.front();
+		switch(nextState)
+		{
+			case 0:
+				if(currPacLoc[1]>4)
+				{
+					if(board[currPacLoc[1]-1][currPacLoc[0]]!=0)
+					{
+						currState=nextState;
+						state.pop();
+						pacmanCentre[0]=(((currPacLoc[0]+18)*8)+4);
+						pacmanCentre[1]=(((currPacLoc[1])*8)+4);
+					}	
+					break;
+				}
+				state.pop();
+				break;
+			case 1:
+				if(currPacLoc[0]>1)
+				{
+					if(board[currPacLoc[1]][currPacLoc[0]-1]!=0)
+					{
+						currState=nextState;
+						state.pop();
+						pacmanCentre[0]=(((currPacLoc[0]+18)*8)+4);
+						pacmanCentre[1]=(((currPacLoc[1])*8)+4);
+					}	
+					break;
+				}
+				state.pop();	
+				break;
+			case 2:
+				if(currPacLoc[0]<32)
+				{
+					if(board[currPacLoc[1]+1][currPacLoc[0]]!=0)
+					{
+						currState=nextState;
+						state.pop();
+						pacmanCentre[0]=(((currPacLoc[0]+18)*8)+4);
+						pacmanCentre[1]=(((currPacLoc[1])*8)+4);
+					}	
+					break;
+				}
+				state.pop();
+				break;
+			case 3:
+				if(currPacLoc[0]<26)
+				{
+					if(board[currPacLoc[1]][currPacLoc[0]+1]!=0)
+					{
+						currState=nextState;
+						state.pop();
+						pacmanCentre[0]=(((currPacLoc[0]+18)*8)+4);
+						pacmanCentre[1]=(((currPacLoc[1])*8)+4);
+					}	
+					break;
+				}
+				state.pop();
+				break;
+		}
+		cout<<"a"<<pacmanCentre[0]<<" "<<pacmanCentre[1]<<endl;
+	}
+
+
 		switch(currState)
 		{
 			case 0:	
 				newPacCentre[0]=pacmanCentre[0];
 				newPacCentre[1]=pacmanCentre[1]-1;
 				nextPacLoc[0]=currPacLoc[0];
-				nextPacLoc[1]=((pacmanCentre[1]+1)/8);
+				nextPacLoc[1]=((pacmanCentre[1]-1)/8);
 				break;
 			case 1:
 				newPacCentre[0]=(pacmanCentre[0]-1);
@@ -1333,7 +1423,7 @@ void movePacman()
 				newPacCentre[0]=pacmanCentre[0];
 				newPacCentre[1]=pacmanCentre[1]+1;
 				nextPacLoc[0]=currPacLoc[0];
-				nextPacLoc[1]=(pacmanCentre[1]-1)/8;
+				nextPacLoc[1]=(pacmanCentre[1]+1)/8;
 				break;
 			case 3:
 				newPacCentre[0]=pacmanCentre[0]+1;
@@ -1341,6 +1431,7 @@ void movePacman()
 				nextPacLoc[0]=((pacmanCentre[0]+1)/8)-18;
 				nextPacLoc[1]=currPacLoc[1];
 		}
+		cout<<"b "<<newPacCentre[0]<<" "<<newPacCentre[1]<<endl;
 		if(newPacCentre[0]>=156 && newPacCentre[0]<364 && board[nextPacLoc[1]][nextPacLoc[0]]!=0)
 		{
 			pacmanCentre[0]=newPacCentre[0];
@@ -1379,12 +1470,6 @@ void movePacman()
 			attachPacman();
 			drawPacman();
 		}
-	}
-	else
-	{
-		//nextState=state.front();
-
-	}
 }
 void displayStablePacman()
 {
@@ -1501,6 +1586,7 @@ int main()
 {
 	int success,i,j;
 	char infoLog[512];
+	
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
@@ -1732,6 +1818,8 @@ int main()
     glDeleteShader(clinkyShader);
     glDeleteShader(textShader);
 
+    glfwSetKeyCallback(window, key_callback);
+
     glGenVertexArrays(2*40,&vaoReferenceLine[0][0]);
     glGenBuffers(2*40,&vboReferenceLine[0][0]);
     glGenVertexArrays(1,&vaoWall);
@@ -1770,13 +1858,15 @@ int main()
 	attachCoins();
 	float startTime=glfwGetTime();
 	float lastPacmanMoveTime=glfwGetTime();
-    while(!glfwWindowShouldClose(window))
+	while(!glfwWindowShouldClose(window))
     {
     	glClearColor(0.0f,0.0f,0.0f,1.0f);
     	glClear(GL_COLOR_BUFFER_BIT);
     	currTime=glfwGetTime();
 		if((currTime-lastPacmanMoveTime)>(1.0/pacmanSpeed))
     	{
+    		
+			
     		lastPacmanMoveTime=currTime;
     		cout<<"movePacman"<<endl;
 			movePacman();
@@ -1800,7 +1890,7 @@ int main()
         drawWall();
         
         
-        cout<<"aa"<<xx++<<endl;
+        
     	glfwSwapBuffers(window);
     	glfwPollEvents();
     }
