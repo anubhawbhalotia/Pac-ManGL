@@ -10,7 +10,7 @@ using namespace std;
 float frameRate=88;
 float currTime;
 float pacmanSpeed=(int)(0.8*frameRate);
-int i,j,nextState;
+int i,j,nextState,last[2],clearCounter=0;
 float x,y;
 int pacmanCentre[2],blinkyCentre[2],pinkyCentre[2],inkyCentre[2],clinkyCentre[2];
 int board[][28]={
@@ -49,7 +49,7 @@ int board[][28]={
 /* 32 */{0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
 /* 33 */{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 /* 34 */{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-/*  */{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+/* 35 */{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 };
 queue <int> state;
 int currState=1,pacmanShape=0;
@@ -68,19 +68,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
 	if(state.empty())
 	{
-		if(key==GLFW_KEY_UP&& action==GLFW_PRESS)
+		if(key==GLFW_KEY_UP&& action==GLFW_PRESS && currState!=0)
 	{
 		state.push(0);
 	}
-	else if(key==GLFW_KEY_LEFT&& action==GLFW_PRESS)
+	else if(key==GLFW_KEY_LEFT&& action==GLFW_PRESS && currState!=1)
 	{
 		state.push(1);
 	}
-	else if(key==GLFW_KEY_DOWN&& action==GLFW_PRESS)
+	else if(key==GLFW_KEY_DOWN&& action==GLFW_PRESS && currState!=2)
 	{
 		state.push(2);
 	}
-	else if(key==GLFW_KEY_RIGHT&& action==GLFW_PRESS)
+	else if(key==GLFW_KEY_RIGHT&& action==GLFW_PRESS && currState!=3)
 	{
 		state.push(3);
 	}
@@ -1335,6 +1335,8 @@ void attachWall()
 }
 void movePacman()
 {
+	last[0]=pacmanCentre[0];
+	last[1]=pacmanCentre[1];
 	pacmanShape=!pacmanShape;
 	currPacLoc[0]=(((pacmanCentre[0]))/8)-18;
 	currPacLoc[1]=(pacmanCentre[1])/8;
@@ -1431,18 +1433,22 @@ void movePacman()
 				nextPacLoc[0]=((pacmanCentre[0]+1)/8)-18;
 				nextPacLoc[1]=currPacLoc[1];
 		}
-		cout<<"b "<<newPacCentre[0]<<" "<<newPacCentre[1]<<endl;
+		cout<<"currState "<<currState<<endl;
+		cout<<"npc "<<newPacCentre[0]<<" "<<newPacCentre[1]<<endl;
+		cout<<"pc "<<pacmanCentre[0]<<" "<<pacmanCentre[1]<<endl;
 		if(newPacCentre[0]>=156 && newPacCentre[0]<364 && board[nextPacLoc[1]][nextPacLoc[0]]!=0)
 		{
+			cout<<"c1"<<endl;
 			pacmanCentre[0]=newPacCentre[0];
 			currPacLoc[0]=nextPacLoc[0];
 		}
-		if(newPacCentre[1]>=36 && newPacCentre[0]<264 && board[nextPacLoc[1]][nextPacLoc[0]]!=0)
+		if(newPacCentre[1]>=36 && newPacCentre[1]<264 && board[nextPacLoc[1]][nextPacLoc[0]]!=0)
 		{
+			cout<<"c2"<<endl;
 			pacmanCentre[1]=newPacCentre[1];
 			currPacLoc[1]=nextPacLoc[1];
 		}
-		cout<<newPacCentre[0]<<" "<<newPacCentre[1]<<endl;
+		cout<<"pc "<<pacmanCentre[0]<<" "<<pacmanCentre[1]<<endl;
 		if(pacmanShape)
 		{
 			switch(currState)
@@ -1470,7 +1476,24 @@ void movePacman()
 			attachPacman();
 			drawPacman();
 		}
+		if(last[0]==pacmanCentre[0] && last[1]==pacmanCentre[1])
+		{
+			clearCounter++;
+		}
+		else
+		{
+			clearCounter=0;
+		}
+		if(clearCounter>=2)
+		{
+			while(!state.empty())
+			{
+				state.pop();
+			}
+			clearCounter=0;
+		}
 }
+
 void displayStablePacman()
 {
 	if(pacmanShape)
@@ -1865,11 +1888,10 @@ int main()
     	currTime=glfwGetTime();
 		if((currTime-lastPacmanMoveTime)>(1.0/pacmanSpeed))
     	{
-    		
-			
     		lastPacmanMoveTime=currTime;
     		cout<<"movePacman"<<endl;
 			movePacman();
+
 		}
 		else
 		{
