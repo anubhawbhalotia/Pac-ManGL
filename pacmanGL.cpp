@@ -44,7 +44,7 @@ void drawBigCoin3();
 void drawBigCoin4();
 void charPrint(float,float,char);
 void checkGameOver();
-void gameOverWindow();
+void gameOverWindow(int);
 void attachScore();
 void drawStart(GLFWwindow*);
 void moveClinkyLogic0();
@@ -2940,7 +2940,8 @@ void levelWon()
 
 }
 */
-void gameOverWindow(){
+void gameOverWindow(int score1){
+    int temp=0,d;
     charPrint(218 , 137 , 'G');
     charPrint(226 , 137 , 'A');
     charPrint(234 , 137 , 'M');
@@ -2949,27 +2950,34 @@ void gameOverWindow(){
     charPrint(264 , 137 , 'V');
     charPrint(272 , 137 , 'E');
     charPrint(280 , 137 , 'R');
+    while(score1!=0)
+    {
+        d=score1%10;
+        score1/=10;
+        charPrint(258 -temp, 157 , d+48);
+        temp+=8;
+    }
 
 }
 void youWin(){
     int temp=192;
-    charPrint(temp,137 , 'L');
+   /* charPrint(temp,137 , 'L');
     charPrint(temp+8,137 , 'E');
     charPrint(temp+16,137 , 'V');
-    charPrint(temp+24,137 , 'E');
-    charPrint(temp+32,137 , 'L');
-    charPrint(temp+48,137 , 'C');
-    charPrint(temp+56,137 , 'O');
-    charPrint(temp+64,137 , 'M');
-    charPrint(temp+72,137 , 'P');
-    charPrint(temp+80,137 , 'L');
-    charPrint(temp+88,137 , 'E');
-    charPrint(temp+96,137 , 'T');
-    charPrint(temp+104,137 , 'E');
+    charPrint(temp+24,137 , 'E');*/
+    charPrint(temp+32,137 , 'Y');
+    charPrint(temp+40,137 , 'O');
+    charPrint(temp+48,137 , 'U');
+    //charPrint(temp+72,137 , 'M');
+    charPrint(temp+72,137 , 'W');
+    charPrint(temp+80,137 , 'O');
+    charPrint(temp+88,137 , 'N');
+    /*charPrint(temp+96,137 , 'T');
+    charPrint(temp+104,137 , 'E');*/
     charPrint(temp+48,157 , '2');
-    charPrint(temp+56,137 , '6');
-    charPrint(temp+64,137 , '0');
-    charPrint(temp+72,137 , '0');
+    charPrint(temp+56,157 , '6');
+    charPrint(temp+64,157 , '0');
+    charPrint(temp+72,157 , '0');
 
 
 
@@ -3274,11 +3282,35 @@ void charPrint(float x , float y , char m)
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0); 
         glBindVertexArray(0);  
-          glUseProgram(wallProgram);
+          glUseProgram(textProgram);
     glBindVertexArray(vaoChar);
-    glLineWidth(10.0);
+    glLineWidth(1.0);
     glDrawArrays(GL_LINES,0,2000);
-         } break;     
+         } break; 
+           case 'W':
+        { float vertices1[]={
+          ((x)*(tempx))-1 ,1-((y)*(tempy)), 0.0 ,
+          ((x)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0 ,
+          ((x)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0 ,
+          ((x+3)*(tempx))-1 ,1-((y+3)*(tempy)), 0.0 ,
+          ((x+3)*(tempx))-1 ,1-((y+3)*(tempy)), 0.0 ,
+          ((x+7)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0,
+          ((x+7)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0,
+          ((x+7)*(tempx))-1 ,1-((y)*(tempy)), 0.0, 
+          
+         
+        };      glBindVertexArray(vaoChar);
+        glBindBuffer(GL_ARRAY_BUFFER,vboChar);
+        glBufferData(GL_ARRAY_BUFFER,sizeof(vertices1),vertices1,GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+        glBindVertexArray(0);  
+          glUseProgram(textProgram);
+    glBindVertexArray(vaoChar);
+    glLineWidth(1.0);
+    glDrawArrays(GL_LINES,0,2000);
+         } break;    
       case 'P':
         { float vertices1[]={
           (x*(tempx))-1 ,1-(y*(tempy)), 0.0 ,
@@ -3395,16 +3427,14 @@ void charPrint(float x , float y , char m)
          } break;
       case '2':
         {float vertices1[]={
-          (x*(tempx))-1 ,1-((y)*(tempy)), 0.0 ,
+                (x*(tempx))-1 ,1-((y)*(tempy)), 0.0 ,
           ((x+7)*(tempx))-1 ,1-((y)*(tempy)), 0.0 ,
           ((x+7)*(tempx))-1 ,1-((y)*(tempy)), 0.0 ,
           ((x+7)*(tempx))-1 ,1-((y+3)*(tempy)), 0.0 ,
           ((x+7)*(tempx))-1 ,1-((y+3)*(tempy)), 0.0 ,
           ((x)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0 ,
-           ((x)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0 ,
-            ((x)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0,
-             ((x+7)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0,
-              ((x+7)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0
+          ((x)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0 ,
+           ((x+7)*(tempx))-1 ,1-((y+7)*(tempy)), 0.0 ,
          
 
         };     glBindVertexArray(vaoChar);
@@ -4035,7 +4065,7 @@ int main()
         }
         else
         {
-            gameOverWindow();
+            gameOverWindow(score);
 
         }
         if(score==2600 && gameOver==0)
