@@ -54,7 +54,7 @@ float tempx=2.0/512 , tempy=2.0/288;
 int currMode=0,lastMode=0,minn,minnCount;
 float frameRate=88;
 float lastPacmanMoveTime, currTime,lastBlinkyMoveTime,lastGhostMoveTime,lastModeChangeTime;
-float pacmanSpeed=(int)(0.8*frameRate),ghostSpeed=(int)(0.65*frameRate),blinkySpeed=(int)(0.65*frameRate);
+float pacmanSpeed=(int)(0.8*frameRate),ghostSpeed=(int)(0.45*frameRate),blinkySpeed=(int)(0.55*frameRate);
 int i,j,nextState,last[2],clearCounter=0,boxCountArray[4];
 float x,y,length[4];
 int pacmanCentre[2],blinkyCentre[2],pinkyCentre[2],inkyCentre[2],clinkyCentre[2];
@@ -1753,19 +1753,18 @@ void movePacman()
 }
 void changeMode()
 {
-    if(currMode==1 && currTime - lastModeChangeTime >=20)
+    if(currMode==1 && currTime - lastModeChangeTime >=12)
     {
+        lastModeChangeTime=currTime;
         currMode=0;
     }
     else if(currMode==0 && currTime - lastModeChangeTime>=7)
     {
+        lastModeChangeTime=currTime;
         currMode=1;
     }
-    else if(currMode==2 && currTime - lastModeChangeTime>=10)
-    {
-        currMode=lastMode;
-    }
 }
+
 void moveBlinkyLogic0()
 {
     cout<<"moveBlinkyLogic0 state = "<<currBlinkyState<<"blinkySpeed"<<1.0/blinkySpeed<< endl;
@@ -3707,6 +3706,8 @@ int main()
     currInkyLoc[0]=inkyCentre[0]/8 -18;
     currInkyLoc[1]=inkyCentre[1]/8;
     cout<<"Reached"<<endl;
+    currMode=0;
+    lastModeChangeTime=glfwGetTime();
     while(!glfwWindowShouldClose(window))
     {
         
@@ -3723,15 +3724,32 @@ int main()
         currTime=glfwGetTime();
         movePacmanLogic();
         changeMode();
-        currMode=0;
         switch(currMode)
         {
             case 0:
+                blinkyTargetScatter[0]=26;
+                blinkyTargetScatter[1]=1;
+                pinkyTargetScatter[0]=2;
+                pinkyTargetScatter[1]=0;
+                inkyTargetScatter[0]=28;
+                inkyTargetScatter[1]=35;
+                clinkyTargetScatter[0]=0;
+                clinkyTargetScatter[1]=35;
                 moveBlinkyLogic0();
                 movePinkyLogic0();
                 moveInkyLogic0();
                 break;
             case 1:
+                blinkyTargetScatter[0]=currPacLoc[0];
+                blinkyTargetScatter[1]=currPacLoc[1];
+                pinkyTargetScatter[0]=currPacLoc[0];
+                pinkyTargetScatter[1]=currPacLoc[1];
+                inkyTargetScatter[0]=currPacLoc[0];
+                inkyTargetScatter[1]=currPacLoc[1];
+                moveBlinkyLogic0();
+                movePinkyLogic0();
+                moveInkyLogic0();
+                break;
                 //moveBlinkyLogic1();
                 break;
             case 2:
