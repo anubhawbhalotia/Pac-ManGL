@@ -43,11 +43,13 @@ void drawBigCoin2();
 void drawBigCoin3();
 void drawBigCoin4();
 void charPrint(float,float,char);
-int checkGameOver();
+void checkGameOver();
 void gameOverWindow();
 void attachScore();
 void drawStart(GLFWwindow*);
-
+void moveClinkyLogic0();
+void moveClinky();
+void youWin();
 int countFrame=0;
 int gameOver=0;
 float tempx=2.0/512 , tempy=2.0/288;
@@ -1753,7 +1755,7 @@ void movePacman()
 }
 void changeMode()
 {
-    if(currMode==1 && currTime - lastModeChangeTime >=12)
+    if(currMode==1 && currTime - lastModeChangeTime >=15)
     {
         lastModeChangeTime=currTime;
         currMode=0;
@@ -2354,7 +2356,7 @@ void moveInkyLogic0()
             length[i]=9999;
             boxCountArray[i]=0;
         }
-        lastGhostMoveTime=currTime;
+        //lastGhostMoveTime=currTime;
         boxCount=0;
         switch(currInkyState)
         {
@@ -2630,7 +2632,295 @@ void moveInky()
     attachGhost(inkyCentre);
     drawGhost(inkyProgram);
 }
+void moveClinkyLogic0()
+{
+    currClinkyLoc[0]=(clinkyCentre[0]/8) -18;
+    currClinkyLoc[1]=clinkyCentre[1]/8;
+    cout<<"moveClinkyLogic0 state = "<<currClinkyState<<"ghostSpeed"<<1.0/ghostSpeed<< endl;
+    if((currTime - lastGhostMoveTime)>=(1.0/ghostSpeed))
+    {
+        cout<<"Timer true"<<endl;
+        for(i=0;i<4;i++)
+        {
+            length[i]=9999;
+            boxCountArray[i]=0;
+        }
+        lastGhostMoveTime=currTime;
+        boxCount=0;
+        switch(currClinkyState)
+        {
+            case 0:
 
+                if(board[currClinkyLoc[1]-1][currClinkyLoc[0]]!=0)
+                {
+                    cout<<"Empty1"<<endl;
+                    boxCountArray[0]=1;
+                    boxCount++;
+                }
+                if(board[currClinkyLoc[1]][currClinkyLoc[0]-1]!=0)
+                {
+                    boxCountArray[1]=1;
+                    boxCount++;
+                }   
+                if(board[currClinkyLoc[1]][currClinkyLoc[0]+1]!=0)
+                {
+                    boxCountArray[3]=1;
+                    boxCount++;
+                }
+                if(boxCount==1)
+                {
+                    for(i=0;i<4;i++)
+                    {
+                        if(boxCountArray[i]==1)
+                        {
+                            currClinkyState=i;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if(boxCountArray[0]==1)
+                    {
+                        cout<<"Empty"<<endl;
+                        length[0]=((currClinkyLoc[0])-(clinkyTargetScatter[0]))*((currClinkyLoc[0])-(clinkyTargetScatter[0]));
+                        length[0]+=((currClinkyLoc[1]-1)-(clinkyTargetScatter[1]))*((currClinkyLoc[1]-1)-(clinkyTargetScatter[1]));
+                    }
+                    if(boxCountArray[1]==1)
+                    {
+                        length[1]=((currClinkyLoc[0]-1)-(clinkyTargetScatter[0]))*((currClinkyLoc[0]-1)-(clinkyTargetScatter[0]));
+                        length[1]+=((currClinkyLoc[1])-(clinkyTargetScatter[1]))*((currClinkyLoc[1])-(clinkyTargetScatter[1]));
+                    }
+                    if(boxCountArray[3]==1)
+                    {
+                        length[3]=((currClinkyLoc[0]+1)-(clinkyTargetScatter[0]))*((currClinkyLoc[0]+1)-(clinkyTargetScatter[0]));
+                        length[3]+=((currClinkyLoc[1])-(clinkyTargetScatter[1]))*((currClinkyLoc[1])-(clinkyTargetScatter[1]));
+                    }
+                    minn=0;
+                    minnCount=0;
+                    for(i=0;i<4;i++)
+                    {
+                        if(length[i]<length[minn])
+                        {
+                            minn=i;
+                        }
+                    }
+                    currClinkyState=minn;
+                }
+                break;
+            case 1:
+                if(board[currClinkyLoc[1]-1][currClinkyLoc[0]]!=0)
+                {
+                    boxCountArray[0]=1;
+                    boxCount++;
+                }
+                if(board[currClinkyLoc[1]][currClinkyLoc[0]-1]!=0)
+                {
+                    boxCountArray[1]=1;
+                    boxCount++;
+                }   
+                if(board[currClinkyLoc[1]+1][currClinkyLoc[0]]!=0)
+                {
+                    boxCountArray[2]=1;
+                    boxCount++;
+                }
+                if(boxCount==1)
+                {
+                    
+                    for(i=0;i<4;i++)
+                    {
+                        if(boxCountArray[i]==1)
+                        {
+                            currClinkyState=i;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if(boxCountArray[0]==1)
+                    {
+                        length[0]=((currClinkyLoc[0])-(clinkyTargetScatter[0]))*((currClinkyLoc[0])-(clinkyTargetScatter[0]));
+                        length[0]+=((currClinkyLoc[1]-1)-(clinkyTargetScatter[1]))*((currClinkyLoc[1]-1)-(clinkyTargetScatter[1]));
+                    }
+                    if(boxCountArray[1]==1)
+                    {
+                        length[1]=((currClinkyLoc[0]-1)-(clinkyTargetScatter[0]))*((currClinkyLoc[0]-1)-(clinkyTargetScatter[0]));
+                        length[1]+=((currClinkyLoc[1])-(clinkyTargetScatter[1]))*((currClinkyLoc[1])-(clinkyTargetScatter[1]));
+                    }
+                    if(boxCountArray[2]==1)
+                    {
+                        length[2]=((currClinkyLoc[0])-(clinkyTargetScatter[0]))*((currClinkyLoc[0])-(clinkyTargetScatter[0]));
+                        length[2]+=((currClinkyLoc[1]+1)-(clinkyTargetScatter[1]))*((currClinkyLoc[1]+1)-(clinkyTargetScatter[1]));
+                    }
+                    minn=0;
+                    minnCount=0;
+                    for(i=0;i<4;i++)
+                    {
+                        if(length[i]<length[minn])
+                        {
+                            minn=i;
+                        }
+                    }
+                    currClinkyState=minn;
+                }  
+                break;  
+            case 2:
+                if(board[currClinkyLoc[1]][currClinkyLoc[0]+1]!=0)
+                {
+                    boxCountArray[3]=1;
+                    boxCount++;
+                }
+                if(board[currClinkyLoc[1]][currClinkyLoc[0]-1]!=0)
+                {
+                    boxCountArray[1]=1;
+                    boxCount++;
+                }   
+                if(board[currClinkyLoc[1]+1][currClinkyLoc[0]]!=0)
+                {
+                    boxCountArray[2]=1;
+                    boxCount++;
+                }
+                if(boxCount==1)
+                {
+                    for(i=0;i<4;i++)
+                    {
+                        if(boxCountArray[i]==1)
+                        {
+                            currClinkyState=i;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if(boxCountArray[3]==1)
+                    {
+                        length[3]=((currClinkyLoc[0]+1)-(clinkyTargetScatter[0]))*((currClinkyLoc[0]+1)-(clinkyTargetScatter[0]));
+                        length[3]+=((currClinkyLoc[1])-(clinkyTargetScatter[1]))*((currClinkyLoc[1])-(clinkyTargetScatter[1]));
+                    }
+                    if(boxCountArray[1]==1)
+                    {
+                        length[1]=((currClinkyLoc[0]-1)-(clinkyTargetScatter[0]))*((currClinkyLoc[0]-1)-(clinkyTargetScatter[0]));
+                        length[1]+=((currClinkyLoc[1])-(clinkyTargetScatter[1]))*((currClinkyLoc[1])-(clinkyTargetScatter[1]));
+                    }
+                    if(boxCountArray[2]==1)
+                    {
+                        length[2]=((currClinkyLoc[0])-(clinkyTargetScatter[0]))*((currClinkyLoc[0])-(clinkyTargetScatter[0]));
+                        length[2]+=((currClinkyLoc[1]+1)-(clinkyTargetScatter[1]))*((currClinkyLoc[1]+1)-(clinkyTargetScatter[1]));
+                    }
+                    minn=0;
+                    minnCount=0;
+                    for(i=0;i<4;i++)
+                    {
+                        if(length[i]<length[minn])
+                        {
+                            minn=i;
+                        }
+                    }
+                    currClinkyState=minn;
+                }    
+                break;
+            case 3:
+                if(board[currClinkyLoc[1]][currClinkyLoc[0]+1]!=0)
+                {
+                    boxCountArray[3]=1;
+                    boxCount++;
+                }
+                if(board[currClinkyLoc[1]-1][currClinkyLoc[0]]!=0)
+                {
+                    boxCountArray[0]=1;
+                    boxCount++;
+                }   
+                if(board[currClinkyLoc[1]+1][currClinkyLoc[0]]!=0)
+                {
+                    boxCountArray[2]=1;
+                    boxCount++;
+                }
+                if(boxCount==1)
+                {
+                    for(i=0;i<4;i++)
+                    {
+                        if(boxCountArray[i]==1)
+                        {
+                            currClinkyState=i;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if(boxCountArray[3]==1)
+                    {
+                        length[3]=((currClinkyLoc[0]+1)-(clinkyTargetScatter[0]))*((currClinkyLoc[0]+1)-(clinkyTargetScatter[0]));
+                        length[3]+=((currClinkyLoc[1])-(clinkyTargetScatter[1]))*((currClinkyLoc[1])-(clinkyTargetScatter[1]));
+                    }
+                    if(boxCountArray[0]==1)
+                    {
+                        length[0]=((currClinkyLoc[0])-(clinkyTargetScatter[0]))*((currClinkyLoc[0])-(clinkyTargetScatter[0]));
+                        length[0]+=((currClinkyLoc[1]-1)-(clinkyTargetScatter[1]))*((currClinkyLoc[1]-1)-(clinkyTargetScatter[1]));
+                    }
+                    if(boxCountArray[2]==1)
+                    {
+                        length[2]=((currClinkyLoc[0])-(clinkyTargetScatter[0]))*((currClinkyLoc[0])-(clinkyTargetScatter[0]));
+                        length[2]+=((currClinkyLoc[1]+1)-(clinkyTargetScatter[1]))*((currClinkyLoc[1]+1)-(clinkyTargetScatter[1]));
+                    }
+                    minn=0;
+                    minnCount=0;
+                    for(i=0;i<4;i++)
+                    {
+                        if(length[i]<length[minn])
+                        {
+                            minn=i;
+                        }
+                    }
+                    currClinkyState=minn;
+                }    
+                break;
+        }
+        cout<<"boxCount"<<boxCount<<endl;
+        cout<<"currClinkyState"<<currClinkyState<<endl;
+        for(i=0;i<4;i++)
+        {
+            cout<<length[i]<<endl;
+        }
+        moveClinky();
+    }
+    else
+    {
+        cout<<"timer False"<<endl;
+        attachGhost(clinkyCentre);
+        drawGhost(clinkyProgram);
+    }
+}
+void moveClinky()
+{
+    currClinkyLoc[0]=(clinkyCentre[0]/8) -18;
+    currClinkyLoc[1]=clinkyCentre[1]/8;
+    switch(currClinkyState)
+    {
+        case 0:
+            clinkyCentre[1]--;
+            currClinkyLoc[1]=clinkyCentre[1]/8;
+            break;
+        case 1:
+            clinkyCentre[0]--;
+            currClinkyLoc[0]=clinkyCentre[0]/8 - 18;
+            break;
+        case 2:
+            clinkyCentre[1]++;
+            currClinkyLoc[1]=clinkyCentre[1]/8;
+            break;
+        case 3:
+            clinkyCentre[0]++;
+            currClinkyLoc[0]=clinkyCentre[0]/8 -18;
+            break;
+    }
+    cout<<"centre"<<clinkyCentre[0]<<" "<<clinkyCentre[1];
+    cout<<"loopcurrClinkyLoc"<<currClinkyLoc[0]<<" "<<currClinkyLoc[1]<<endl;
+    attachGhost(clinkyCentre);
+    drawGhost(clinkyProgram);
+}
 
 /*
 void splashScreen()
@@ -2659,6 +2949,31 @@ void gameOverWindow(){
     charPrint(264 , 137 , 'V');
     charPrint(272 , 137 , 'E');
     charPrint(280 , 137 , 'R');
+
+}
+void youWin(){
+    int temp=192;
+    charPrint(temp,137 , 'L');
+    charPrint(temp+8,137 , 'E');
+    charPrint(temp+16,137 , 'V');
+    charPrint(temp+24,137 , 'E');
+    charPrint(temp+32,137 , 'L');
+    charPrint(temp+48,137 , 'C');
+    charPrint(temp+56,137 , 'O');
+    charPrint(temp+64,137 , 'M');
+    charPrint(temp+72,137 , 'P');
+    charPrint(temp+80,137 , 'L');
+    charPrint(temp+88,137 , 'E');
+    charPrint(temp+96,137 , 'T');
+    charPrint(temp+104,137 , 'E');
+    charPrint(temp+48,157 , '2');
+    charPrint(temp+56,137 , '6');
+    charPrint(temp+64,137 , '0');
+    charPrint(temp+72,137 , '0');
+
+
+
+
 
 }
 
@@ -3251,17 +3566,14 @@ void charPrint(float x , float y , char m)
      
 } 
 }
-int checkGameOver()
+void checkGameOver()
 {
     if(((currPacLoc[0]==currBlinkyLoc[0] && currPacLoc[1]==currBlinkyLoc[1]))
         || ((currPacLoc[0]==currPinkyLoc[0] && currPacLoc[1]==currPinkyLoc[1]))
-        || ((currPacLoc[0]==currInkyLoc[0] && currPacLoc[1]==currInkyLoc[1])))
+        || ((currPacLoc[0]==currInkyLoc[0] && currPacLoc[1]==currInkyLoc[1]))
+        ||  ((currPacLoc[0]==currClinkyLoc[0] && currPacLoc[1]==currClinkyLoc[1])))
     {
-        return 1;
-    }
-    else
-    {
-        return 0;
+        gameOver=1;
     }
 }
 void attachScore(int score1)
@@ -3690,10 +4002,13 @@ int main()
     pinkyCentre[1]=blinkyCentre[1];
     inkyCentre[0]=blinkyCentre[0];
     inkyCentre[1]=blinkyCentre[1];
+    clinkyCentre[0]=blinkyCentre[0];
+    clinkyCentre[1]=blinkyCentre[1];
     attachCoins();
     currBlinkyState=1;
     currPinkyState=1;
     currInkyState=1;
+    currClinkyState=1;
     float startTime=glfwGetTime();
     lastPacmanMoveTime=startTime;
     lastBlinkyMoveTime=startTime;
@@ -3711,15 +4026,24 @@ int main()
     while(!glfwWindowShouldClose(window))
     {
         
-        
         cout<<stopForSomeFrame<<endl;
         glClearColor(0.0f,0.0f,0.0f,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        if(checkGameOver())
+        if(gameOver==0)
         {
-            gameOverWindow();
+            checkGameOver();
         }
         else
+        {
+            gameOverWindow();
+
+        }
+        if(score==2600 && gameOver==0)
+        {
+            youWin();
+        }
+        else if(gameOver==0)
+
         {
         currTime=glfwGetTime();
         movePacmanLogic();
@@ -3738,6 +4062,7 @@ int main()
                 moveBlinkyLogic0();
                 movePinkyLogic0();
                 moveInkyLogic0();
+                moveClinkyLogic0();
                 break;
             case 1:
                 blinkyTargetScatter[0]=currPacLoc[0];
@@ -3746,9 +4071,12 @@ int main()
                 pinkyTargetScatter[1]=currPacLoc[1];
                 inkyTargetScatter[0]=currPacLoc[0];
                 inkyTargetScatter[1]=currPacLoc[1];
+                clinkyTargetScatter[0]=26;
+                clinkyTargetScatter[1]=1;
                 moveBlinkyLogic0();
                 movePinkyLogic0();
                 moveInkyLogic0();
+                moveClinkyLogic0();
                 break;
                 //moveBlinkyLogic1();
                 break;
@@ -3771,7 +4099,6 @@ int main()
         drawWall();
         attachScore(score);
         cout<<"score "<<score<<endl; 
-
         
         }
     
